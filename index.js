@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,7 +13,6 @@ app.use(express.json());
 
 // console.log(process.env.DB_PASS);
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hybglgu.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,11 +30,6 @@ async function run() {
         // await client.connect();
         const jobCollection = client.db('jobDB').collection('jobs');
 
-        app.post('/logout', async (req, res) => {
-            const user = req.body;
-            console.log('logging out', user);
-            res.clearCookie('token', { maxAge: 0 }).send({ success: true });
-        })
 
         //service related API
         app.get('/jobs', async (req, res) => {
@@ -42,6 +37,30 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+
+        app.post('/addJobs', async (req, res) => {
+            const addJob = req.body;
+            console.log(addJob);
+            const result = await jobCollection.insertOne(addJob);
+            res.send(result);
+        });
+
+        // app.get('/jobs', async (req, res) => {
+        //     let query = {};
+        //     if (req.query?.email) {
+        //         query = { email: req.query.email }
+        //     }
+        //     const result = await jobCollection.find(query).toArray();
+        //     res.send(result);
+        // })
+
+        app.delete('/postedJobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await jobCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
