@@ -40,7 +40,7 @@ async function run() {
         })
 
 
-        app.get('/jobs/:id', async (req, res) => {
+        app.get('/updateJob/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await jobCollection.findOne(query);
@@ -48,17 +48,36 @@ async function run() {
         })
 
 
-        app.patch('/jobs/:id', async (req, res) => {
+        // app.patch('/jobs/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: new ObjectId(id) };
+        //     const updatedJobs = req.body;
+        //     console.log(updatedJobs);
+        //     const updateDoc = {
+        //         $set: {
+        //             status: updatedJobs.status
+        //         },
+        //     };
+        //     const result = await jobCollection.updateOne(filter, updateDoc);
+        //     res.send(result);
+        // })
+
+        app.put('/jobs/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
-            const updatedJobs = req.body;
-            console.log(updatedJobs);
-            const updateDoc = {
+            const options = { upsert: true };
+            const updatedJob = req.body;
+            const product = {
                 $set: {
-                    status: updatedJobs.status
-                },
-            };
-            const result = await jobCollection.updateOne(filter, updateDoc);
+                    jobTitle: updatedJob.jobTitle,
+                    deadline: updatedJob.deadline,
+                    description: updatedJob.description,
+                    minimumPrice: updatedJob.minimumPrice,
+                    maximumPrice: updatedJob.maximumPrice,
+                    category: updatedJob.category,
+                }
+            }
+            const result = await jobCollection.updateOne(filter, product, options);
             res.send(result);
         })
 
