@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+        await client.connect();
         const jobCollection = client.db('jobDB').collection('jobs');
         const bidCollection = client.db('jobDB').collection('bids');
 
@@ -36,6 +36,29 @@ async function run() {
         app.get('/jobs', async (req, res) => {
             const cursor = jobCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+
+        app.get('/jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await jobCollection.findOne(query);
+            res.send(result);
+        })
+
+
+        app.patch('/jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedJobs = req.body;
+            console.log(updatedJobs);
+            const updateDoc = {
+                $set: {
+                    status: updatedJobs.status
+                },
+            };
+            const result = await jobCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
@@ -59,6 +82,7 @@ async function run() {
             const result = await bidCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+
         app.delete('/postedJobs/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
