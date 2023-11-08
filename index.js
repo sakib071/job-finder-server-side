@@ -29,6 +29,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         const jobCollection = client.db('jobDB').collection('jobs');
+        const bidCollection = client.db('jobDB').collection('bids');
 
 
         //service related API
@@ -45,21 +46,39 @@ async function run() {
             res.send(result);
         });
 
-        // app.get('/jobs', async (req, res) => {
-        //     let query = {};
-        //     if (req.query?.email) {
-        //         query = { email: req.query.email }
-        //     }
-        //     const result = await jobCollection.find(query).toArray();
-        //     res.send(result);
-        // })
-
+        app.patch('/bids/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedBids = req.body;
+            console.log(updatedBids);
+            const updateDoc = {
+                $set: {
+                    status: updatedBids.status
+                },
+            };
+            const result = await bidCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
         app.delete('/postedJobs/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await jobCollection.deleteOne(query);
             res.send(result);
         })
+
+        app.get('/bids', async (req, res) => {
+            const cursor = bidCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post('/bids', async (req, res) => {
+            const addBids = req.body;
+            console.log(addBids);
+            const result = await bidCollection.insertOne(addBids);
+            res.send(result);
+        });
+
 
 
         // Send a ping to confirm a successful connection
