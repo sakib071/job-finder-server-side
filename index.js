@@ -48,20 +48,6 @@ async function run() {
         })
 
 
-        // app.patch('/jobs/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: new ObjectId(id) };
-        //     const updatedJobs = req.body;
-        //     console.log(updatedJobs);
-        //     const updateDoc = {
-        //         $set: {
-        //             status: updatedJobs.status
-        //         },
-        //     };
-        //     const result = await jobCollection.updateOne(filter, updateDoc);
-        //     res.send(result);
-        // })
-
         app.put('/jobs/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
